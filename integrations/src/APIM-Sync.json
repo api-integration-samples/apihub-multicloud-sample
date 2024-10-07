@@ -1,0 +1,674 @@
+{
+	"description": "Sync flow for API metadata from Azure and AWS to API Hub.",
+	"snapshotNumber": "4",
+	"triggerConfigs": [
+		{
+			"label": "Schedule Trigger",
+			"triggerType": "CRON",
+			"triggerNumber": "3",
+			"triggerId": "cron_trigger/APIM-Sync_Timer_1/*%2F5+*+*+*+*",
+			"startTasks": [
+				{
+					"taskId": "4"
+				},
+				{
+					"taskId": "6"
+				}
+			],
+			"properties": {
+				"Scheduled Time spec": "*/5 * * * *",
+				"Timer Name": "APIM-Sync_Timer_1"
+			}
+		}
+	],
+	"taskConfigs": [
+		{
+			"task": "JsonnetMapperTask",
+			"taskId": "10",
+			"parameters": {
+				"diagramMetadata": {
+					"key": "diagramMetadata",
+					"value": {
+						"jsonValue": "{\n  \"@type\": \"type.googleapis.com/google.protobuf.Struct\",\n  \"value\": {\n    \"0\": {\n      \"inputs\": [{\n        \"name\": \"`Task_6_responseBody`\",\n        \"type\": 1.0,\n        \"tokenType\": 0.0\n      }],\n      \"outputs\": [{\n        \"name\": \"AwsCountSynced\",\n        \"type\": 2.0,\n        \"tokenType\": 0.0\n      }],\n      \"mappings\": [{\n        \"inputs\": [\"`Task_6_responseBody`\"],\n        \"output\": \"AwsCountSynced\",\n        \"transformation\": {\n          \"operationId\": \"TRANSFORMATION_0\",\n          \"coordinates\": [859.0, 150.0],\n          \"readableName\": \"Get length\",\n          \"operations\": [{\n            \"type\": 1.0,\n            \"key\": 97.0,\n            \"params\": [{\n              \"type\": 3.0,\n              \"value\": \"`Task_6_responseBody`\",\n              \"datatype\": 1.0\n            }]\n          }, {\n            \"type\": 2.0,\n            \"key\": 60.0,\n            \"params\": [{\n              \"type\": 4.0,\n              \"value\": \"previousOperation\",\n              \"datatype\": 0.0\n            }, {\n              \"type\": 0.0,\n              \"value\": \"apis\",\n              \"datatype\": 1.0\n            }]\n          }, {\n            \"type\": 1.0,\n            \"key\": 100.0,\n            \"params\": [{\n              \"type\": 4.0,\n              \"value\": \"previousOperation\",\n              \"datatype\": 0.0\n            }]\n          }]\n        }\n      }]\n    }\n  }\n}"
+					}
+				},
+				"template": {
+					"key": "template",
+					"value": {
+						"stringValue": "local f = import \"functions\";\nlocal inputs = {\"`Task_6_responseBody`\": std.extVar(\"`Task_6_responseBody`\")};\n{\"AwsCountSynced\": std.length(std.parseJson(inputs[\"`Task_6_responseBody`\"])[\"apis\"])}"
+					}
+				}
+			},
+			"displayName": "Check for changes",
+			"nextTasks": [
+				{
+					"taskId": "11",
+					"condition": "$AwsCountSynced$\u003e0"
+				}
+			],
+			"taskExecutionStrategy": "WHEN_ALL_SUCCEED",
+			"externalTaskType": "NORMAL_TASK"
+		},
+		{
+			"task": "GenericRestV2Task",
+			"taskId": "11",
+			"parameters": {
+				"additionalHeaders": {
+					"key": "additionalHeaders",
+					"value": {}
+				},
+				"authConfig": {
+					"key": "authConfig",
+					"value": {
+						"jsonValue": "{\n  \"@type\": \"type.googleapis.com/enterprise.crm.eventbus.authconfig.AuthConfigTaskParam\"\n}"
+					}
+				},
+				"authConfigName": {
+					"key": "authConfigName",
+					"value": {
+						"stringValue": "IntegrationService"
+					}
+				},
+				"disableSSLValidation": {
+					"key": "disableSSLValidation",
+					"value": {
+						"booleanValue": false
+					}
+				},
+				"followRedirects": {
+					"key": "followRedirects",
+					"value": {
+						"booleanValue": true
+					}
+				},
+				"httpMethod": {
+					"key": "httpMethod",
+					"value": {
+						"stringValue": "POST"
+					}
+				},
+				"httpParams": {
+					"key": "httpParams",
+					"value": {}
+				},
+				"jsonAdditionalHeaders": {
+					"key": "jsonAdditionalHeaders",
+					"value": {
+						"jsonValue": "null"
+					}
+				},
+				"requestBody": {
+					"key": "requestBody",
+					"value": {
+						"stringValue": "{\n  \"onramp\": \"apihub\"\n}"
+					}
+				},
+				"requestorId": {
+					"key": "requestorId",
+					"value": {
+						"stringValue": ""
+					}
+				},
+				"responseBody": {
+					"key": "responseBody",
+					"value": {
+						"stringArray": {
+							"stringValues": [
+								"$`Task_11_responseBody`$"
+							]
+						}
+					}
+				},
+				"responseHeader": {
+					"key": "responseHeader",
+					"value": {
+						"stringArray": {
+							"stringValues": [
+								"$`Task_11_responseHeader`$"
+							]
+						}
+					}
+				},
+				"responseStatus": {
+					"key": "responseStatus",
+					"value": {
+						"stringArray": {
+							"stringValues": [
+								"$`Task_11_responseStatus`$"
+							]
+						}
+					}
+				},
+				"throwError": {
+					"key": "throwError",
+					"value": {
+						"booleanValue": true
+					}
+				},
+				"timeout": {
+					"key": "timeout",
+					"value": {
+						"intValue": "0"
+					}
+				},
+				"url": {
+					"key": "url",
+					"value": {
+						"stringValue": "$`CONFIG_ApintOnrampUrl`$"
+					}
+				},
+				"urlFetchingService": {
+					"key": "urlFetchingService",
+					"value": {
+						"stringValue": "HARPOON"
+					}
+				},
+				"urlQueryStrings": {
+					"key": "urlQueryStrings",
+					"value": {}
+				},
+				"useSSL": {
+					"key": "useSSL",
+					"value": {
+						"booleanValue": false
+					}
+				},
+				"userAgent": {
+					"key": "userAgent",
+					"value": {
+						"stringValue": ""
+					}
+				}
+			},
+			"displayName": "Onramp to API Hub",
+			"nextTasks": [
+				{
+					"taskId": "7"
+				}
+			],
+			"taskExecutionStrategy": "WHEN_ALL_SUCCEED",
+			"externalTaskType": "NORMAL_TASK"
+		},
+		{
+			"task": "GenericRestV2Task",
+			"taskId": "4",
+			"parameters": {
+				"additionalHeaders": {
+					"key": "additionalHeaders",
+					"value": {}
+				},
+				"authConfig": {
+					"key": "authConfig",
+					"value": {
+						"jsonValue": "{\n  \"@type\": \"type.googleapis.com/enterprise.crm.eventbus.authconfig.AuthConfigTaskParam\"\n}"
+					}
+				},
+				"authConfigName": {
+					"key": "authConfigName",
+					"value": {
+						"stringValue": "IntegrationService"
+					}
+				},
+				"disableSSLValidation": {
+					"key": "disableSSLValidation",
+					"value": {
+						"booleanValue": false
+					}
+				},
+				"followRedirects": {
+					"key": "followRedirects",
+					"value": {
+						"booleanValue": true
+					}
+				},
+				"httpMethod": {
+					"key": "httpMethod",
+					"value": {
+						"stringValue": "POST"
+					}
+				},
+				"httpParams": {
+					"key": "httpParams",
+					"value": {}
+				},
+				"jsonAdditionalHeaders": {
+					"key": "jsonAdditionalHeaders",
+					"value": {
+						"jsonValue": "null"
+					}
+				},
+				"requestBody": {
+					"key": "requestBody",
+					"value": {
+						"stringValue": "{\n  \"offramp\": \"azure\",\n  \"onlyNew\": true\n}"
+					}
+				},
+				"requestorId": {
+					"key": "requestorId",
+					"value": {
+						"stringValue": ""
+					}
+				},
+				"responseBody": {
+					"key": "responseBody",
+					"value": {
+						"stringArray": {
+							"stringValues": [
+								"$`Task_4_responseBody`$"
+							]
+						}
+					}
+				},
+				"responseHeader": {
+					"key": "responseHeader",
+					"value": {
+						"stringArray": {
+							"stringValues": [
+								"$`Task_4_responseHeader`$"
+							]
+						}
+					}
+				},
+				"responseStatus": {
+					"key": "responseStatus",
+					"value": {
+						"stringArray": {
+							"stringValues": [
+								"$`Task_4_responseStatus`$"
+							]
+						}
+					}
+				},
+				"throwError": {
+					"key": "throwError",
+					"value": {
+						"booleanValue": true
+					}
+				},
+				"timeout": {
+					"key": "timeout",
+					"value": {
+						"intValue": "0"
+					}
+				},
+				"url": {
+					"key": "url",
+					"value": {
+						"stringValue": "$`CONFIG_ApintOfframpUrl`$"
+					}
+				},
+				"urlFetchingService": {
+					"key": "urlFetchingService",
+					"value": {
+						"stringValue": "HARPOON"
+					}
+				},
+				"urlQueryStrings": {
+					"key": "urlQueryStrings",
+					"value": {}
+				},
+				"useSSL": {
+					"key": "useSSL",
+					"value": {
+						"booleanValue": false
+					}
+				},
+				"userAgent": {
+					"key": "userAgent",
+					"value": {
+						"stringValue": ""
+					}
+				}
+			},
+			"displayName": "Check Azure APIs",
+			"nextTasks": [
+				{
+					"taskId": "9"
+				}
+			],
+			"taskExecutionStrategy": "WHEN_ALL_SUCCEED",
+			"externalTaskType": "NORMAL_TASK"
+		},
+		{
+			"task": "GenericRestV2Task",
+			"taskId": "6",
+			"parameters": {
+				"additionalHeaders": {
+					"key": "additionalHeaders",
+					"value": {}
+				},
+				"authConfig": {
+					"key": "authConfig",
+					"value": {
+						"jsonValue": "{\n  \"@type\": \"type.googleapis.com/enterprise.crm.eventbus.authconfig.AuthConfigTaskParam\"\n}"
+					}
+				},
+				"authConfigName": {
+					"key": "authConfigName",
+					"value": {
+						"stringValue": "IntegrationService"
+					}
+				},
+				"disableSSLValidation": {
+					"key": "disableSSLValidation",
+					"value": {
+						"booleanValue": false
+					}
+				},
+				"followRedirects": {
+					"key": "followRedirects",
+					"value": {
+						"booleanValue": true
+					}
+				},
+				"httpMethod": {
+					"key": "httpMethod",
+					"value": {
+						"stringValue": "POST"
+					}
+				},
+				"httpParams": {
+					"key": "httpParams",
+					"value": {}
+				},
+				"jsonAdditionalHeaders": {
+					"key": "jsonAdditionalHeaders",
+					"value": {
+						"jsonValue": "null"
+					}
+				},
+				"requestBody": {
+					"key": "requestBody",
+					"value": {
+						"stringValue": "{\n  \"offramp\": \"aws\",\n  \"onlyNew\": true\n}"
+					}
+				},
+				"requestorId": {
+					"key": "requestorId",
+					"value": {
+						"stringValue": ""
+					}
+				},
+				"responseBody": {
+					"key": "responseBody",
+					"value": {
+						"stringArray": {
+							"stringValues": [
+								"$`Task_6_responseBody`$"
+							]
+						}
+					}
+				},
+				"responseHeader": {
+					"key": "responseHeader",
+					"value": {
+						"stringArray": {
+							"stringValues": [
+								"$`Task_6_responseHeader`$"
+							]
+						}
+					}
+				},
+				"responseStatus": {
+					"key": "responseStatus",
+					"value": {
+						"stringArray": {
+							"stringValues": [
+								"$`Task_6_responseStatus`$"
+							]
+						}
+					}
+				},
+				"throwError": {
+					"key": "throwError",
+					"value": {
+						"booleanValue": true
+					}
+				},
+				"timeout": {
+					"key": "timeout",
+					"value": {
+						"intValue": "0"
+					}
+				},
+				"url": {
+					"key": "url",
+					"value": {
+						"stringValue": "$`CONFIG_ApintOfframpUrl`$"
+					}
+				},
+				"urlFetchingService": {
+					"key": "urlFetchingService",
+					"value": {
+						"stringValue": "HARPOON"
+					}
+				},
+				"urlQueryStrings": {
+					"key": "urlQueryStrings",
+					"value": {}
+				},
+				"useSSL": {
+					"key": "useSSL",
+					"value": {
+						"booleanValue": false
+					}
+				},
+				"userAgent": {
+					"key": "userAgent",
+					"value": {
+						"stringValue": ""
+					}
+				}
+			},
+			"displayName": "Check AWS APIs",
+			"nextTasks": [
+				{
+					"taskId": "10"
+				}
+			],
+			"taskExecutionStrategy": "WHEN_ALL_SUCCEED",
+			"externalTaskType": "NORMAL_TASK"
+		},
+		{
+			"task": "EmailTask",
+			"taskId": "7",
+			"parameters": {
+				"AttachmentPath": {
+					"key": "AttachmentPath",
+					"value": {
+						"stringArray": {}
+					}
+				},
+				"Bcc": {
+					"key": "Bcc",
+					"value": {
+						"stringArray": {}
+					}
+				},
+				"BodyFormat": {
+					"key": "BodyFormat",
+					"value": {
+						"stringValue": "text"
+					}
+				},
+				"Cc": {
+					"key": "Cc",
+					"value": {
+						"stringArray": {}
+					}
+				},
+				"EmailConfigInput": {
+					"key": "EmailConfigInput",
+					"value": {
+						"jsonValue": "{\n  \"@type\": \"type.googleapis.com/enterprise.crm.eventbus.proto.EmailConfig\"\n}"
+					}
+				},
+				"Subject": {
+					"key": "Subject",
+					"value": {
+						"stringValue": "APIs Synced"
+					}
+				},
+				"TextBody": {
+					"key": "TextBody",
+					"value": {
+						"stringValue": "Hi, $AwsCountSynced$ AWS APIs and $AzureCountSynced$ Azure APIs were synced to API Hub.\n\nHave a nice day!\nYour friendly neighborhood API Hub."
+					}
+				},
+				"ThrowNoRequiredInputException": {
+					"key": "ThrowNoRequiredInputException",
+					"value": {
+						"booleanValue": true
+					}
+				},
+				"To": {
+					"key": "To",
+					"value": {
+						"stringValue": "$`CONFIG_OnrampUpdateEmailAddress`$"
+					}
+				}
+			},
+			"displayName": "Send Email If Count \u003e 0",
+			"taskExecutionStrategy": "WHEN_ALL_SUCCEED",
+			"externalTaskType": "NORMAL_TASK"
+		},
+		{
+			"task": "JsonnetMapperTask",
+			"taskId": "9",
+			"parameters": {
+				"diagramMetadata": {
+					"key": "diagramMetadata",
+					"value": {
+						"jsonValue": "{\n  \"@type\": \"type.googleapis.com/google.protobuf.Struct\",\n  \"value\": {\n    \"0\": {\n      \"inputs\": [{\n        \"name\": \"`Task_4_responseBody`\",\n        \"type\": 1.0,\n        \"tokenType\": 0.0\n      }],\n      \"outputs\": [{\n        \"name\": \"AzureCountSynced\",\n        \"type\": 2.0,\n        \"tokenType\": 0.0\n      }],\n      \"mappings\": [{\n        \"transformation\": {\n          \"coordinates\": [934.0, 150.0],\n          \"operationId\": \"TRANSFORMATION_0\",\n          \"operations\": [{\n            \"type\": 1.0,\n            \"key\": 97.0,\n            \"params\": [{\n              \"type\": 3.0,\n              \"value\": \"`Task_4_responseBody`\",\n              \"datatype\": 1.0\n            }]\n          }, {\n            \"type\": 2.0,\n            \"key\": 60.0,\n            \"params\": [{\n              \"type\": 4.0,\n              \"value\": \"previousOperation\",\n              \"datatype\": 0.0\n            }, {\n              \"type\": 0.0,\n              \"value\": \"apis\",\n              \"datatype\": 1.0\n            }]\n          }, {\n            \"type\": 1.0,\n            \"key\": 100.0,\n            \"params\": [{\n              \"type\": 4.0,\n              \"value\": \"previousOperation\",\n              \"datatype\": 0.0\n            }]\n          }],\n          \"readableName\": \"Get length\"\n        },\n        \"inputs\": [\"`Task_4_responseBody`\"],\n        \"output\": \"AzureCountSynced\"\n      }]\n    }\n  }\n}"
+					}
+				},
+				"template": {
+					"key": "template",
+					"value": {
+						"stringValue": "local f = import \"functions\";\nlocal inputs = {\"`Task_4_responseBody`\": std.extVar(\"`Task_4_responseBody`\")};\n{\"AzureCountSynced\": std.length(std.parseJson(inputs[\"`Task_4_responseBody`\"])[\"apis\"])}"
+					}
+				}
+			},
+			"displayName": "Check for changes",
+			"nextTasks": [
+				{
+					"taskId": "11",
+					"condition": "$AzureCountSynced$\u003e0"
+				}
+			],
+			"taskExecutionStrategy": "WHEN_ALL_SUCCEED",
+			"externalTaskType": "NORMAL_TASK"
+		}
+	],
+	"integrationParameters": [
+		{
+			"key": "`Task_4_responseHeader`",
+			"dataType": "STRING_VALUE",
+			"isTransient": true,
+			"producer": "1_4"
+		},
+		{
+			"key": "`Task_4_responseBody`",
+			"dataType": "STRING_VALUE",
+			"isTransient": true,
+			"producer": "1_4"
+		},
+		{
+			"key": "`Task_4_responseStatus`",
+			"dataType": "STRING_VALUE",
+			"isTransient": true,
+			"producer": "1_4"
+		},
+		{
+			"key": "ApiNames",
+			"dataType": "STRING_ARRAY"
+		},
+		{
+			"key": "`Task_6_responseHeader`",
+			"dataType": "STRING_VALUE",
+			"isTransient": true,
+			"producer": "1_6"
+		},
+		{
+			"key": "`Task_6_responseBody`",
+			"dataType": "STRING_VALUE",
+			"isTransient": true,
+			"producer": "1_6"
+		},
+		{
+			"key": "`Task_6_responseStatus`",
+			"dataType": "STRING_VALUE",
+			"isTransient": true,
+			"producer": "1_6"
+		},
+		{
+			"key": "AwsCountSynced",
+			"dataType": "INT_VALUE",
+			"defaultValue": {
+				"intValue": "-1"
+			}
+		},
+		{
+			"key": "AzureCountSynced",
+			"dataType": "INT_VALUE",
+			"defaultValue": {
+				"intValue": "-1"
+			}
+		},
+		{
+			"key": "`Task_11_responseHeader`",
+			"dataType": "STRING_VALUE",
+			"isTransient": true,
+			"producer": "1_11"
+		},
+		{
+			"key": "`Task_11_responseBody`",
+			"dataType": "STRING_VALUE",
+			"isTransient": true,
+			"producer": "1_11"
+		},
+		{
+			"key": "`Task_11_responseStatus`",
+			"dataType": "STRING_VALUE",
+			"isTransient": true,
+			"producer": "1_11"
+		}
+	],
+	"integrationConfigParameters": [
+		{
+			"parameter": {
+				"key": "`CONFIG_OnrampUpdateEmailAddress`",
+				"dataType": "STRING_VALUE",
+				"defaultValue": {
+					"stringValue": ""
+				},
+				"displayName": "`CONFIG_OnrampUpdateEmailAddress`"
+			}
+		},
+		{
+			"parameter": {
+				"key": "`CONFIG_ApintOfframpUrl`",
+				"dataType": "STRING_VALUE",
+				"defaultValue": {
+					"stringValue": "SERVICE_URL/v1/apint/offramp"
+				},
+				"displayName": "`CONFIG_ApintOfframpUrl`"
+			}
+		},
+		{
+			"parameter": {
+				"key": "`CONFIG_ApintOnrampUrl`",
+				"dataType": "STRING_VALUE",
+				"defaultValue": {
+					"stringValue": "SERVICE_URL/v1/apint/onramp"
+				},
+				"displayName": "`CONFIG_ApintOnrampUrl`"
+			}
+		}
+	],
+	"databasePersistencePolicy": "",
+	"cloudLoggingDetails": {
+		"cloudLoggingSeverity": "",
+		"enableCloudLogging": false
+	}
+}

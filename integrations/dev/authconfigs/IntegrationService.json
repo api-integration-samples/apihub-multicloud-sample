@@ -1,0 +1,11 @@
+{
+	"displayName": "IntegrationService",
+	"visibility": "CLIENT_VISIBLE",
+	"decryptedCredential": {
+		"credentialType": "OIDC_TOKEN",
+		"oidcToken": {
+			"serviceAccountEmail": "api-integration-service@PROJECT_ID.iam.gserviceaccount.com",
+			"audience": "SERVICE_URL"
+		}
+	}
+}

@@ -1,0 +1,5 @@
+{
+	"`CONFIG_ApintOfframpUrl`": "SERVICE_URL/v1/apint/offramp",
+	"`CONFIG_ApintOnrampUrl`": "SERVICE_URL/v1/apint/onramp",
+	"`CONFIG_OnrampUpdateEmailAddress`": "USER_EMAIL"
+}
